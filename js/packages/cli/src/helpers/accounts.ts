@@ -33,7 +33,8 @@ export const createConfig = async function (
 ) {
   const configAccount = Keypair.generate();
   const uuid = uuidFromConfigPubkey(configAccount.publicKey);
-
+  log.info({ uuid });
+  log.info(configAccount.publicKey);
   return {
     config: configAccount.publicKey,
     uuid,
@@ -205,7 +206,7 @@ export const getMasterEdition = async (
 
 export function loadWalletKey(keypair): Keypair {
   if (!keypair || keypair == '') {
-    throw new Error("Keypair is required!");
+    throw new Error('Keypair is required!');
   }
   const loaded = Keypair.fromSecretKey(
     new Uint8Array(JSON.parse(fs.readFileSync(keypair).toString())),

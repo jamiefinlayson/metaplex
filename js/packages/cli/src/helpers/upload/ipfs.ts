@@ -1,6 +1,6 @@
 import log from 'loglevel';
 import fetch from 'node-fetch';
-import { create, globSource } from 'ipfs-http-client';
+import { create } from 'ipfs-http-client';
 
 export interface ipfsCreds {
   projectId: string;
@@ -16,6 +16,9 @@ export async function ipfsUpload(
   image: string,
   manifestBuffer: Buffer,
 ) {
+  console.log({ image });
+  process.exit();
+
   const tokenIfps = `${ipfsCredentials.projectId}:${ipfsCredentials.secretKey}`;
   // @ts-ignore
   const ipfs = create('https://ipfs.infura.io:5001');
@@ -25,7 +28,7 @@ export async function ipfsUpload(
     return cid;
   };
 
-  const mediaHash = await uploadToIpfs(globSource(image, { recursive: true }));
+  const mediaHash = await uploadToIpfs(image);
   log.debug('mediaHash:', mediaHash);
   const mediaUrl = `https://ipfs.io/ipfs/${mediaHash}`;
   log.debug('mediaUrl:', mediaUrl);

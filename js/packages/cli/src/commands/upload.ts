@@ -25,6 +25,7 @@ export async function upload(
   ipfsCredentials: ipfsCreds,
 ): Promise<boolean> {
   let uploadSuccessful = true;
+  log.info({ keypair });
 
   const savedContent = loadCache(cacheName, env);
   const cacheContent = savedContent || {};
@@ -87,26 +88,65 @@ export async function upload(
       const manifest = JSON.parse(manifestContent);
 
       const manifestBuffer = Buffer.from(JSON.stringify(manifest));
+      const manifestBufferString = JSON.parse(manifestBuffer.toString());
 
       if (i === 0 && !cacheContent.program.uuid) {
         // initialize config
         log.info(`initializing config`);
         try {
-          const res = await createConfig(anchorProgram, walletKeyPair, {
-            maxNumberOfLines: new BN(totalNFTs),
-            symbol: manifest.symbol,
-            sellerFeeBasisPoints: manifest.seller_fee_basis_points,
-            isMutable: true,
-            maxSupply: new BN(0),
-            retainAuthority: retainAuthority,
-            creators: manifest.properties.creators.map(creator => {
-              return {
-                address: new PublicKey(creator.address),
+          const maxNumberOfLines = new BN(totalNFTs);
+          log.info('maxNumberOfLines', maxNumberOfLines);
+          // const symbol = manifest.symbol;
+          const symbol = 'TEST';
+          log.info('symbol', symbol);
+          // const sellerFeeBasisPoints = manifest.seller_fee_basis_points;
+          const sellerFeeBasisPoints = 250;
+          log.info({ sellerFeeBasisPoints });
+          const isMutable = true;
+          log.info({ isMutable });
+          const maxSupply = new BN(0);
+          log.info({ maxSupply });
+          // const retainAuthority = retainAuthority;
+          log.info({ manifestBufferString });
+          const creators = manifestBufferString.properties.creators.map(
+            address => {
+              log.info({ address });
+              const creatorKey = new PublicKey(address);
+              const creator = {
+                address: creatorKey,
                 verified: true,
-                share: creator.share,
+                share: 0.5,
               };
-            }),
+              return creator;
+              // return(
+              //  const mappedCreators = manifestBufferString.properties.creators.map(item=>{
+              //    //console.log("item goes here",item)
+              //      return (item)
+              //      //address: item,
+              //      //verified: true,
+              //      //share: creator.share,
+              //  })
+              //  return {
+              //    address: mappedCreators,
+              //    verified: true
+              //  }
+              //  )
+            },
+          );
+          console.log({ creators: JSON.stringify(creators, null, 2) });
+          log.info({ anchorProgram });
+          log.info({ walletKeyPair });
+          const res = await createConfig(anchorProgram, walletKeyPair, {
+            maxNumberOfLines,
+            symbol,
+            sellerFeeBasisPoints,
+            isMutable,
+            maxSupply,
+            retainAuthority,
+            creators,
           });
+          log.info(`initialized config`);
+
           cacheContent.program.uuid = res.uuid;
           cacheContent.program.config = res.config.toBase58();
           config = res.config;

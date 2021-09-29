@@ -47,7 +47,7 @@
     "arweave": "^1.10.16",
     "bn.js": "^5.2.0",
     "borsh": "^0.4.0",
-    "commander": "^8.1.0",
+    "commander": "^8.2.0",
     "form-data": "^4.0.0",
     "ipfs-http-client": "^52.0.3",
     "jsonschema": "^1.4.0",
